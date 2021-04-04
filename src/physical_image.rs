@@ -172,20 +172,20 @@ impl<T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for PhysicalImage<
         self.height.value()
     }
 
-    fn is_valid<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> bool {
-        x.value() < self.width.value() && y.value() < self.height.value()
+    fn is_valid(&self, x: usize, y: usize) -> bool {
+        x < self.width.value() && y < self.height.value()
     }
 
-    unsafe fn get_unchecked<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> &Self::Item {
+    unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
         debug_assert!(self.is_valid(x, y), "Location ({}, {}) is not valid in PhysicalImage::get_unchecked", x, y);
-        self.data.get_unchecked(self.width.value() * y.value() + x.value())
+        self.data.get_unchecked(self.width.value() * y + x)
     }
 }
 
 impl<T, W: MayBeConst<usize>, H: MayBeConst<usize>> WritePixel for PhysicalImage<T, W, H> {
-    unsafe fn get_unchecked_mut<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&mut self, x: X, y: Y) -> &mut Self::Item {
+    unsafe fn get_unchecked_mut(&mut self, x: usize, y: usize) -> &mut Self::Item {
         debug_assert!(self.is_valid(x, y), "Location ({}, {}) is not valid in PhysicalImage::get_unchecked_mut", x, y);
-        self.data.get_unchecked_mut(self.width.value() * y.value() + x.value())
+        self.data.get_unchecked_mut(self.width.value() * y + x)
     }
 }
 

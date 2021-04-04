@@ -46,13 +46,13 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRef<'
         self.roi_height.value()
     }
 
-    fn is_valid<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> bool {
-        x.value() < self.width() && y.value() < self.height()
+    fn is_valid(&self, x: usize, y: usize) -> bool {
+        x < self.width() && y < self.height()
     }
 
-    unsafe fn get_unchecked<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> &Self::Item {
+    unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
         debug_assert!(self.is_valid(x, y), "Locate ({}, {}) is not valid in ImageRef::get_unchecked", x, y);
-        &*self.ptr.add((self.roi_y + y.value()) * self.base_width + self.roi_x + x.value())
+        &*self.ptr.add((self.roi_y + y) * self.base_width + self.roi_x + x)
     }
 }
 
@@ -217,20 +217,20 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRefMu
         self.roi_height.value()
     }
 
-    fn is_valid<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> bool {
-        x.value() < self.width() && y.value() < self.height()
+    fn is_valid(&self, x: usize, y: usize) -> bool {
+        x < self.width() && y < self.height()
     }
 
-    unsafe fn get_unchecked<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> &Self::Item {
+    unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
         debug_assert!(self.is_valid(x, y), "Locate ({}, {}) is not valid in ImageRefMut::get_unchecked", x, y);
-        &*self.ptr.add((self.roi_y + y.value()) * self.base_width + self.roi_x + x.value())
+        &*self.ptr.add((self.roi_y + y) * self.base_width + self.roi_x + x)
     }
 }
 
 impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> WritePixel for ImageRefMut<'a, T, W, H> {
-    unsafe fn get_unchecked_mut<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&mut self, x: X, y: Y) -> &mut Self::Item {
+    unsafe fn get_unchecked_mut(&mut self, x: usize, y: usize) -> &mut Self::Item {
         debug_assert!(self.is_valid(x, y), "Locate ({}, {}) is not valid in ImageRefMut::get_unchecked_mut", x, y);
-        &mut *self.ptr.add((self.roi_y + y.value()) * self.base_width + self.roi_x + x.value())
+        &mut *self.ptr.add((self.roi_y + y) * self.base_width + self.roi_x + x)
     }
 }
 
@@ -457,23 +457,23 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRefOv
         self.height.value()
     }
 
-    fn is_valid<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> bool {
-        let x = if x.value() >= self.valid_offset_x {
-            x.value() - self.valid_offset_x
+    fn is_valid(&self, x: usize, y: usize) -> bool {
+        let x = if x >= self.valid_offset_x {
+            x - self.valid_offset_x
         } else {
             return false;
         };
-        let y = if y.value() >= self.valid_offset_y {
-            y.value() - self.valid_offset_y
+        let y = if y >= self.valid_offset_y {
+            y - self.valid_offset_y
         } else {
             return false;
         };
         self.valid_ref.is_valid(x, y)
     }
 
-    unsafe fn get_unchecked<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> &Self::Item {
+    unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
         debug_assert!(self.is_valid(x, y), "Locate ({}, {}) is not valid in ImageRefOverhang::get_unchecked", x, y);
-        self.valid_ref.get_unchecked(x.value() - self.valid_offset_x, y.value() - self.valid_offset_y)
+        self.valid_ref.get_unchecked(x - self.valid_offset_x, y - self.valid_offset_y)
     }
 }
 
@@ -689,30 +689,30 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRefOv
         self.height.value()
     }
 
-    fn is_valid<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> bool {
-        let x = if x.value() >= self.valid_offset_x {
-            x.value() - self.valid_offset_x
+    fn is_valid(&self, x: usize, y: usize) -> bool {
+        let x = if x >= self.valid_offset_x {
+            x - self.valid_offset_x
         } else {
             return false;
         };
-        let y = if y.value() >= self.valid_offset_y {
-            y.value() - self.valid_offset_y
+        let y = if y >= self.valid_offset_y {
+            y - self.valid_offset_y
         } else {
             return false;
         };
         self.valid_ref.is_valid(x, y)
     }
 
-    unsafe fn get_unchecked<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> &Self::Item {
+    unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
         debug_assert!(self.is_valid(x, y), "Locate ({}, {}) is not valid in ImageRefOverhangMut::get_unchecked", x, y);
-        self.valid_ref.get_unchecked(x.value() - self.valid_offset_x, y.value() - self.valid_offset_y)
+        self.valid_ref.get_unchecked(x - self.valid_offset_x, y - self.valid_offset_y)
     }
 }
 
 impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> WritePixel for ImageRefOverhangMut<'a, T, W, H> {
-    unsafe fn get_unchecked_mut<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&mut self, x: X, y: Y) -> &mut Self::Item {
+    unsafe fn get_unchecked_mut(&mut self, x: usize, y: usize) -> &mut Self::Item {
         debug_assert!(self.is_valid(x, y), "Locate ({}, {}) is not valid in ImageRefOverhangMut::get_unchecked_mut", x, y);
-        self.valid_ref.get_unchecked_mut(x.value() - self.valid_offset_x, y.value() - self.valid_offset_y)
+        self.valid_ref.get_unchecked_mut(x - self.valid_offset_x, y - self.valid_offset_y)
     }
 }
 

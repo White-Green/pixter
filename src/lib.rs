@@ -15,26 +15,26 @@ pub trait ReadPixel {
     type Item;
     fn width(&self) -> usize;
     fn height(&self) -> usize;
-    fn is_valid<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> bool;
-    fn get<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> Option<&Self::Item> {
+    fn is_valid(&self, x: usize, y: usize) -> bool;
+    fn get(&self, x: usize, y: usize) -> Option<&Self::Item> {
         if self.is_valid(x, y) {
             Some(unsafe { self.get_unchecked(x, y) })
         } else {
             None
         }
     }
-    unsafe fn get_unchecked<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&self, x: X, y: Y) -> &Self::Item;
+    unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item;
 }
 
 pub trait WritePixel: ReadPixel {
-    fn get_mut<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&mut self, x: X, y: Y) -> Option<&mut Self::Item> {
+    fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut Self::Item> {
         if self.is_valid(x, y) {
             Some(unsafe { self.get_unchecked_mut(x, y) })
         } else {
             None
         }
     }
-    unsafe fn get_unchecked_mut<X: MayBeConst<usize>, Y: MayBeConst<usize>>(&mut self, x: X, y: Y) -> &mut Self::Item;
+    unsafe fn get_unchecked_mut(&mut self, x: usize, y: usize) -> &mut Self::Item;
 }
 
 pub trait View: ReadPixel {
