@@ -1,3 +1,6 @@
+#![warn(missing_docs)]
+#![warn(missing_crate_level_docs)]
+
 use partial_const::MayBeConst;
 use rayon::prelude::{IndexedParallelIterator, ParallelIterator};
 
