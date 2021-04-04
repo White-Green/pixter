@@ -11,11 +11,28 @@ pub mod image_ref;
 pub mod physical_image;
 pub mod pixel_iter;
 
+#[derive(Debug, Clone)]
+pub struct Rectangle {
+    pub x: usize,
+    pub y: usize,
+    pub w: usize,
+    pub h: usize,
+}
+
+impl Rectangle {
+    pub fn contains(&self, x: usize, y: usize) -> bool {
+        self.x <= x && x < self.x + self.w && self.y <= y && y < self.y + self.h
+    }
+}
+
 pub trait ReadPixel {
     type Item;
     fn width(&self) -> usize;
     fn height(&self) -> usize;
-    fn is_valid(&self, x: usize, y: usize) -> bool;
+    fn valid_rect(&self) -> Rectangle;
+    fn is_valid(&self, x: usize, y: usize) -> bool {
+        self.valid_rect().contains(x, y)
+    }
     fn get(&self, x: usize, y: usize) -> Option<&Self::Item> {
         if self.is_valid(x, y) {
             Some(unsafe { self.get_unchecked(x, y) })

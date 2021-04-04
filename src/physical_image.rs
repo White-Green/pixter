@@ -8,7 +8,7 @@ use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, IntoParallel
 
 use crate::image_ref::{ImageRef, ImageRefMut, ImageRefOverhang, ImageRefOverhangMut};
 use crate::pixel_iter::{PixIter, SerializePixIter};
-use crate::{IntoPixelIterator, IntoSerializedPixelIterator, ReadPixel, View, ViewMut, WritePixel};
+use crate::{IntoPixelIterator, IntoSerializedPixelIterator, ReadPixel, Rectangle, View, ViewMut, WritePixel};
 
 #[derive(Debug)]
 pub struct PhysicalImage<T, W: MayBeConst<usize> = usize, H: MayBeConst<usize> = usize> {
@@ -172,8 +172,13 @@ impl<T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for PhysicalImage<
         self.height.value()
     }
 
-    fn is_valid(&self, x: usize, y: usize) -> bool {
-        x < self.width.value() && y < self.height.value()
+    fn valid_rect(&self) -> Rectangle {
+        Rectangle {
+            x: 0,
+            y: 0,
+            w: self.width.value(),
+            h: self.height.value(),
+        }
     }
 
     unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {

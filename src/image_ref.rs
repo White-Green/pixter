@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use partial_const::MayBeConst;
 
 use crate::pixel_iter::{PixIter, SerializePixIter};
-use crate::{IntoPixelIterator, IntoSerializedPixelIterator, ReadPixel, View, ViewMut, WritePixel};
+use crate::{IntoPixelIterator, IntoSerializedPixelIterator, ReadPixel, Rectangle, View, ViewMut, WritePixel};
 
 mod iter;
 
@@ -46,8 +46,13 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRef<'
         self.roi_height.value()
     }
 
-    fn is_valid(&self, x: usize, y: usize) -> bool {
-        x < self.width() && y < self.height()
+    fn valid_rect(&self) -> Rectangle {
+        Rectangle {
+            x: 0,
+            y: 0,
+            w: self.roi_width.value(),
+            h: self.roi_height.value(),
+        }
     }
 
     unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
@@ -217,8 +222,13 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRefMu
         self.roi_height.value()
     }
 
-    fn is_valid(&self, x: usize, y: usize) -> bool {
-        x < self.width() && y < self.height()
+    fn valid_rect(&self) -> Rectangle {
+        Rectangle {
+            x: 0,
+            y: 0,
+            w: self.roi_width.value(),
+            h: self.roi_height.value(),
+        }
     }
 
     unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
@@ -457,18 +467,13 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRefOv
         self.height.value()
     }
 
-    fn is_valid(&self, x: usize, y: usize) -> bool {
-        let x = if x >= self.valid_offset_x {
-            x - self.valid_offset_x
-        } else {
-            return false;
-        };
-        let y = if y >= self.valid_offset_y {
-            y - self.valid_offset_y
-        } else {
-            return false;
-        };
-        self.valid_ref.is_valid(x, y)
+    fn valid_rect(&self) -> Rectangle {
+        Rectangle {
+            x: self.valid_offset_x,
+            y: self.valid_offset_y,
+            w: self.valid_ref.roi_width,
+            h: self.valid_ref.roi_height,
+        }
     }
 
     unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
@@ -689,18 +694,13 @@ impl<'a, T, W: MayBeConst<usize>, H: MayBeConst<usize>> ReadPixel for ImageRefOv
         self.height.value()
     }
 
-    fn is_valid(&self, x: usize, y: usize) -> bool {
-        let x = if x >= self.valid_offset_x {
-            x - self.valid_offset_x
-        } else {
-            return false;
-        };
-        let y = if y >= self.valid_offset_y {
-            y - self.valid_offset_y
-        } else {
-            return false;
-        };
-        self.valid_ref.is_valid(x, y)
+    fn valid_rect(&self) -> Rectangle {
+        Rectangle {
+            x: self.valid_offset_x,
+            y: self.valid_offset_y,
+            w: self.valid_ref.roi_width,
+            h: self.valid_ref.roi_height,
+        }
     }
 
     unsafe fn get_unchecked(&self, x: usize, y: usize) -> &Self::Item {
